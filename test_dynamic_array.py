@@ -1,159 +1,376 @@
-# test_dynamic_array.py
-import pytest
+import time
+import unittest
+from typing import Any, List, Callable
+
+import matplotlib.pyplot as plt
+import numpy as np
 from hypothesis import given, strategies as st
-from dynamic_array import (
-    DynamicArray,
-    cons,
-    empty,
-    from_list,
-    length,
-    member,
-    remove,
-    reverse,
-    to_list,
-    concat,
-    filter,
-    map,
-    reduce,
-    intersection,
-)
+
+from dynamic_array import DynamicArray
 
 
-# Original API test
-def test_api():
-    empty_arr = empty()
-    l1 = cons(None, cons(1, empty()))
-    l2 = cons(1, cons(None, empty()))
+class TestDynamicArray(unittest.TestCase):
+    """测试DynamicArray类的功能。"""
 
-    assert str(empty_arr) == "[]"
-    assert str(l1) == "[None, 1]"
-    assert str(l2) == "[1, None]"
-    assert empty_arr != l1
-    assert empty_arr != l2
-    assert l1 != l2
-    assert l1 == cons(None, cons(1, empty()))
+    def test_empty(self):
+        """测试创建空数组。"""
+        arr = DynamicArray.empty()
+        self.assertEqual(arr.length(), 0)
+        self.assertEqual(str(arr), "[]")
 
-    assert length(empty_arr) == 0
-    assert length(l1) == 2
-    assert length(l2) == 2
+    def test_from_list(self):
+        """测试从列表创建数组。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        self.assertEqual(arr.length(), 3)
+        self.assertEqual(str(arr), "[1, 2, 3]")
 
-    assert str(remove(l1, None)) == "[1]"
-    assert str(remove(l1, 1)) == "[None]"
+    def test_cons(self):
+        """测试cons操作。"""
+        arr = DynamicArray.empty()
+        arr = arr.cons(3).cons(2).cons(1)
+        self.assertEqual(arr.length(), 3)
+        self.assertEqual(str(arr), "[1, 2, 3]")
 
-    assert not member(None, empty_arr)
-    assert member(None, l1)
-    assert member(1, l1)
-    assert not member(2, l1)
+    def test_remove(self):
+        """测试remove操作。"""
+        arr = DynamicArray.from_list([1, 2, 3, 2])
+        arr = arr.remove(2)
+        self.assertEqual(str(arr), "[1, 3, 2]")
 
-    assert l1 == reverse(l2)
+        # 测试移除不存在的元素
+        arr = arr.remove(4)
+        self.assertEqual(str(arr), "[1, 3, 2]")
 
-    assert to_list(l1) == [None, 1]
-    assert l1 == from_list([None, 1])
+    def test_length(self):
+        """测试length操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        self.assertEqual(arr.length(), 3)
 
-    assert concat(l1, l2) == from_list([None, 1, 1, None])
+        arr = arr.cons(0)
+        self.assertEqual(arr.length(), 4)
 
-    buf = []
-    for e in l1:
-        buf.append(e)
-    assert buf == [None, 1]
+    def test_member(self):
+        """测试member操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        self.assertTrue(arr.member(1))
+        self.assertTrue(arr.member(2))
+        self.assertTrue(arr.member(3))
+        self.assertFalse(arr.member(4))
 
-    lst = to_list(l1) + to_list(l2)
-    for e in l1:
-        lst.remove(e)
-    for e in l2:
-        lst.remove(e)
-    assert lst == []
+    def test_reverse(self):
+        """测试reverse操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        reversed_arr = arr.reverse()
+        self.assertEqual(str(reversed_arr), "[3, 2, 1]")
+
+        # 原数组不变
+        self.assertEqual(str(arr), "[1, 2, 3]")
+
+    def test_to_list(self):
+        """测试to_list操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        self.assertEqual(arr.to_list(), [1, 2, 3])
+
+    def test_get(self):
+        """测试get操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        self.assertEqual(arr.get(0), 1)
+        self.assertEqual(arr.get(1), 2)
+        self.assertEqual(arr.get(2), 3)
+
+        # 测试负索引
+        self.assertEqual(arr.get(-1), 3)
+        self.assertEqual(arr.get(-2), 2)
+        self.assertEqual(arr.get(-3), 1)
+
+        # 测试索引越界
+        with self.assertRaises(IndexError):
+            arr.get(3)
+        with self.assertRaises(IndexError):
+            arr.get(-4)
+
+    def test_set(self):
+        """测试set操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        new_arr = arr.set(1, 5)
+
+        # 新数组已更新
+        self.assertEqual(str(new_arr), "[1, 5, 3]")
+
+        # 原数组不变
+        self.assertEqual(str(arr), "[1, 2, 3]")
+
+        # 测试负索引
+        new_arr = arr.set(-1, 6)
+        self.assertEqual(str(new_arr), "[1, 2, 6]")
+
+        # 测试索引越界
+        with self.assertRaises(IndexError):
+            arr.set(3, 7)
+        with self.assertRaises(IndexError):
+            arr.set(-4, 7)
+
+    def test_filter(self):
+        """测试filter操作。"""
+        arr = DynamicArray.from_list([1, 2, 3, 4, 5])
+        filtered = arr.filter(lambda x: x % 2 == 0)
+        self.assertEqual(str(filtered), "[2, 4]")
+
+        # 原数组不变
+        self.assertEqual(str(arr), "[1, 2, 3, 4, 5]")
+
+    def test_map(self):
+        """测试map操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        mapped = arr.map(lambda x: x * 2)
+        self.assertEqual(str(mapped), "[2, 4, 6]")
+
+        # 原数组不变
+        self.assertEqual(str(arr), "[1, 2, 3]")
+
+    def test_reduce(self):
+        """测试reduce操作。"""
+        arr = DynamicArray.from_list([1, 2, 3, 4])
+        sum_result = arr.reduce(lambda acc, x: acc + x, 0)
+        self.assertEqual(sum_result, 10)
+
+        product_result = arr.reduce(lambda acc, x: acc * x, 1)
+        self.assertEqual(product_result, 24)
+
+    def test_iterator(self):
+        """测试iterator操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        iterator = arr.iterator()
+        self.assertEqual(next(iterator), 1)
+        self.assertEqual(next(iterator), 2)
+        self.assertEqual(next(iterator), 3)
+        with self.assertRaises(StopIteration):
+            next(iterator)
+
+    def test_intersection(self):
+        """测试intersection操作。"""
+        arr1 = DynamicArray.from_list([1, 2, 3, 4])
+        arr2 = DynamicArray.from_list([3, 4, 5, 6])
+
+        intersection = arr1.intersection(arr2)
+        self.assertEqual(str(intersection), "[3, 4]")
+
+        # 原数组不变
+        self.assertEqual(str(arr1), "[1, 2, 3, 4]")
+        self.assertEqual(str(arr2), "[3, 4, 5, 6]")
+
+    def test_concat(self):
+        """测试concat操作。"""
+        arr1 = DynamicArray.from_list([1, 2])
+        arr2 = DynamicArray.from_list([3, 4])
+
+        concatenated = arr1.concat(arr2)
+        self.assertEqual(str(concatenated), "[1, 2, 3, 4]")
+
+        # 原数组不变
+        self.assertEqual(str(arr1), "[1, 2]")
+        self.assertEqual(str(arr2), "[3, 4]")
+
+    def test_eq(self):
+        """测试__eq__操作。"""
+        arr1 = DynamicArray.from_list([1, 2, 3])
+        arr2 = DynamicArray.from_list([1, 2, 3])
+        arr3 = DynamicArray.from_list([1, 2, 4])
+
+        self.assertEqual(arr1, arr2)
+        self.assertNotEqual(arr1, arr3)
+        self.assertNotEqual(arr1, "not an array")
+
+    def test_str(self):
+        """测试__str__操作。"""
+        arr = DynamicArray.from_list([1, None, 3])
+        self.assertEqual(str(arr), "[1, None, 3]")
+
+    def test_iter(self):
+        """测试__iter__操作。"""
+        arr = DynamicArray.from_list([1, 2, 3])
+        items = []
+        for item in arr:
+            items.append(item)
+
+        self.assertEqual(items, [1, 2, 3])
+
+    def test_none_values(self):
+        """测试None值处理。"""
+        arr = DynamicArray.from_list([None, 1, None, 3])
+        self.assertEqual(arr.length(), 4)
+        self.assertEqual(str(arr), "[None, 1, None, 3]")
+
+        # 测试None值的成员检查
+        self.assertTrue(arr.member(None))
+
+        # 测试移除None值
+        arr_without_none = arr.remove(None)
+        self.assertEqual(str(arr_without_none), "[1, None, 3]")
+
+    def test_empty_operations(self):
+        """测试空数组的操作。"""
+        empty_arr = DynamicArray.empty()
+
+        # 测试空数组的基本操作
+        self.assertEqual(empty_arr.length(), 0)
+        self.assertFalse(empty_arr.member(1))
+        self.assertEqual(empty_arr.to_list(), [])
+
+        # 测试空数组的reverse
+        self.assertEqual(empty_arr.reverse().to_list(), [])
+
+        # 测试空数组的filter和map
+        self.assertEqual(empty_arr.filter(lambda x: True).to_list(), [])
+        self.assertEqual(empty_arr.map(lambda x: x * 2).to_list(), [])
+
+        # 测试空数组的reduce
+        self.assertEqual(empty_arr.reduce(lambda acc, x: acc + x, 0), 0)
+
+        # 测试空数组的concat
+        arr = DynamicArray.from_list([1, 2])
+        self.assertEqual(empty_arr.concat(arr).to_list(), [1, 2])
+        self.assertEqual(arr.concat(empty_arr).to_list(), [1, 2])
+
+    def test_growth_factor_one(self):
+        """测试growth_factor=1时的扩容行为。"""
+        arr = DynamicArray.empty(growth_factor=1.0)
+
+        # 连续添加元素，观察扩容行为
+        for i in range(5):
+            arr = arr.cons(i)
+
+        self.assertEqual(arr.length(), 5)
+        self.assertEqual(arr.to_list(), [4, 3, 2, 1, 0])
+
+    def test_api(self):
+        """用户提供的API测试。"""
+        # 创建空数组
+        empty_array = DynamicArray.empty()
+        self.assertEqual(empty_array.length(), 0)
+
+        # 从列表创建数组
+        array_from_list = DynamicArray.from_list([1, 2, 3])
+        self.assertEqual(array_from_list.length(), 3)
+
+        # 添加元素
+        new_array = array_from_list.cons(0)
+        self.assertEqual(new_array.length(), 4)
+        self.assertEqual(new_array.get(0), 0)
+
+        # 移除元素
+        array_without_2 = array_from_list.remove(2)
+        self.assertEqual(array_without_2.length(), 2)
+        self.assertEqual(array_without_2.to_list(), [1, 3])
+
+        # 检查成员
+        self.assertTrue(array_from_list.member(2))
+        self.assertFalse(array_from_list.member(4))
+
+        # 反转数组
+        reversed_array = array_from_list.reverse()
+        self.assertEqual(reversed_array.to_list(), [3, 2, 1])
+
+        # 设置元素
+        modified_array = array_from_list.set(1, 5)
+        self.assertEqual(modified_array.to_list(), [1, 5, 3])
+
+        # 过滤元素
+        filtered_array = array_from_list.filter(lambda x: x > 1)
+        self.assertEqual(filtered_array.to_list(), [2, 3])
+
+        # 映射元素
+        mapped_array = array_from_list.map(lambda x: x * 2)
+        self.assertEqual(mapped_array.to_list(), [2, 4, 6])
+
+        # 归约元素
+        sum_result = array_from_list.reduce(lambda acc, x: acc + x, 0)
+        self.assertEqual(sum_result, 6)
+
+        # 数组交集
+        array1 = DynamicArray.from_list([1, 2, 3])
+        array2 = DynamicArray.from_list([2, 3, 4])
+        intersection_array = array1.intersection(array2)
+        self.assertEqual(intersection_array.to_list(), [2, 3])
+
+        # 数组连接
+        concatenated_array = array1.concat(array2)
+        self.assertEqual(concatenated_array.to_list(), [1, 2, 3, 2, 3, 4])
 
 
-# Property-based tests
-@given(st.lists(st.integers() | st.none()))
-def test_from_list_to_list_roundtrip(lst):
-    arr = from_list(lst)
-    assert to_list(arr) == lst
+class MonoidLawsTest(unittest.TestCase):
+    """测试Monoid定律。"""
+
+    @given(st.lists(st.integers()), st.lists(st.integers()), st.lists(st.integers()))
+    def test_monoid_laws(self, list_x, list_y, list_z):
+        """使用Hypothesis测试Monoid定律。"""
+        x = DynamicArray.from_list(list_x)
+        y = DynamicArray.from_list(list_y)
+        z = DynamicArray.from_list(list_z)
+        empty = DynamicArray.empty()
+
+        # 左单位元: concat(empty, x) == x
+        self.assertEqual(empty.concat(x), x)
+
+        # 右单位元: concat(x, empty) == x
+        self.assertEqual(x.concat(empty), x)
+
+        # 结合律: concat(concat(x, y), z) == concat(x, concat(y, z))
+        self.assertEqual(x.concat(y).concat(z), x.concat(y.concat(z)))
 
 
-@given(st.lists(st.integers()), st.integers())
-def test_cons_property(lst, elem):
-    arr = from_list(lst)
-    new_arr = cons(elem, arr)
-    assert to_list(new_arr) == [elem] + lst
+class PerformanceTest(unittest.TestCase):
+    """性能测试。"""
 
+    def test_insertion_performance(self):
+        """测试连续插入10000个元素的性能。"""
+        arr = DynamicArray.empty()
+        times = []
+        elements = []
 
-@given(st.lists(st.integers()), st.integers())
-def test_member_property(lst, elem):
-    arr = from_list(lst)
-    assert member(arr, elem) == (elem in lst)
+        for i in range(10000):
+            start_time = time.time()
+            arr = arr.cons(i)
+            end_time = time.time()
 
+            if i % 100 == 0:  # 每100个元素记录一次
+                times.append(end_time - start_time)
+                elements.append(i)
 
-@given(st.lists(st.integers()))
-def test_reverse_property(lst):
-    arr = from_list(lst)
-    assert to_list(reverse(arr)) == list(reversed(lst))
+        # 绘制性能曲线
+        plt.figure(figsize=(10, 6))
+        plt.plot(elements, times, marker='o')
+        plt.title('插入操作性能')
+        plt.xlabel('元素数量')
+        plt.ylabel('插入时间 (秒)')
+        plt.grid(True)
+        plt.savefig('insertion_performance.png')
 
+    def test_growth_factor_performance(self):
+        """测试不同growth_factor对性能的影响。"""
+        growth_factors = [1.1, 1.5, 2.0, 3.0]
+        num_elements = 5000
 
-@given(st.lists(st.integers()), st.lists(st.integers()))
-def test_concat_property(lst1, lst2):
-    arr1 = from_list(lst1)
-    arr2 = from_list(lst2)
-    assert to_list(concat(arr1, arr2)) == lst1 + lst2
+        results = {}
 
+        for gf in growth_factors:
+            start_time = time.time()
 
-# Monoid laws tests
-def test_monoid_identity():
-    arr = from_list([1, 2, 3])
-    empty_arr = empty()
+            arr = DynamicArray.empty(growth_factor=gf)
+            for i in range(num_elements):
+                arr = arr.cons(i)
 
-    assert concat(empty_arr, arr) == arr
-    assert concat(arr, empty_arr) == arr
+            end_time = time.time()
+            results[gf] = end_time - start_time
 
+        # 绘制不同growth_factor的性能比较
+        plt.figure(figsize=(10, 6))
+        plt.bar([str(gf) for gf in growth_factors], list(results.values()))
+        plt.title('不同Growth Factor的性能比较')
+        plt.xlabel('Growth Factor')
+        plt.ylabel('插入5000个元素的总时间 (秒)')
+        plt.grid(True)
+        plt.savefig('growth_factor_performance.png')
 
-@given(st.lists(st.integers()), st.lists(st.integers()), st.lists(st.integers()))
-def test_monoid_associativity(lst1, lst2, lst3):
-    arr1 = from_list(lst1)
-    arr2 = from_list(lst2)
-    arr3 = from_list(lst3)
-
-    left_assoc = concat(concat(arr1, arr2), arr3)
-    right_assoc = concat(arr1, concat(arr2, arr3))
-    assert left_assoc == right_assoc
-
-
-# Edge cases tests
-def test_none_handling():
-    arr = cons(None, cons(0, empty()))
-    assert member(arr, None)
-    assert to_list(remove(arr, None)) == [0]
-
-
-def test_empty_operations():
-    arr = empty()
-    assert length(arr) == 0
-    assert not member(arr, 0)
-    assert to_list(arr) == []
-    assert str(arr) == "[]"
-
-
-def test_negative_indices():
-    arr = from_list([1, 2, 3])
-    assert arr.get(-1) == 3
-    assert arr.get(-3) == 1
-
-
-# Additional functional tests
-def test_filter_map_reduce():
-    arr = from_list([1, 2, 3, 4])
-
-    filtered = filter(arr, lambda x: x % 2 == 0)
-    assert to_list(filtered) == [2, 4]
-
-    mapped = map(arr, lambda x: x * 2)
-    assert to_list(mapped) == [2, 4, 6, 8]
-
-    reduced = reduce(arr, lambda acc, x: acc + x, 0)
-    assert reduced == 10
-
-
-def test_intersection():
-    arr1 = from_list([1, 2, 3, 4])
-    arr2 = from_list([3, 4, 5, 6])
-    assert to_list(intersection(arr1, arr2)) == [3, 4]
+if __name__ == '__main__':
+    unittest.main()
