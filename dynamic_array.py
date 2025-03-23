@@ -79,7 +79,12 @@ class DynamicArray:
         Returns:
             扩容后的新数组
         """
+        # 修复当growth_factor为1时的问题，确保至少增加1个容量
         new_capacity = max(1, int(self._capacity * self._growth_factor))
+        # 如果新容量等于当前容量，则至少增加1
+        if new_capacity <= self._capacity:
+            new_capacity = self._capacity + 1
+
         new_data = self._data + (None,) * (new_capacity - self._capacity)
         return DynamicArray(new_data, self._length, new_capacity, self._growth_factor)
 
