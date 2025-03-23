@@ -1,8 +1,6 @@
-import time
 import unittest
 from typing import Any, List, Callable
 
-import matplotlib.pyplot as plt
 import numpy as np
 from hypothesis import given, strategies as st
 
@@ -317,60 +315,6 @@ class MonoidLawsTest(unittest.TestCase):
 
         # 结合律: concat(concat(x, y), z) == concat(x, concat(y, z))
         self.assertEqual(x.concat(y).concat(z), x.concat(y.concat(z)))
-
-
-class PerformanceTest(unittest.TestCase):
-    """性能测试。"""
-
-    def test_insertion_performance(self):
-        """测试连续插入10000个元素的性能。"""
-        arr = DynamicArray.empty()
-        times = []
-        elements = []
-
-        for i in range(10000):
-            start_time = time.time()
-            arr = arr.cons(i)
-            end_time = time.time()
-
-            if i % 100 == 0:  # 每100个元素记录一次
-                times.append(end_time - start_time)
-                elements.append(i)
-
-        # 绘制性能曲线
-        plt.figure(figsize=(10, 6))
-        plt.plot(elements, times, marker='o')
-        plt.title('插入操作性能')
-        plt.xlabel('元素数量')
-        plt.ylabel('插入时间 (秒)')
-        plt.grid(True)
-        plt.savefig('insertion_performance.png')
-
-    def test_growth_factor_performance(self):
-        """测试不同growth_factor对性能的影响。"""
-        growth_factors = [1.1, 1.5, 2.0, 3.0]
-        num_elements = 5000
-
-        results = {}
-
-        for gf in growth_factors:
-            start_time = time.time()
-
-            arr = DynamicArray.empty(growth_factor=gf)
-            for i in range(num_elements):
-                arr = arr.cons(i)
-
-            end_time = time.time()
-            results[gf] = end_time - start_time
-
-        # 绘制不同growth_factor的性能比较
-        plt.figure(figsize=(10, 6))
-        plt.bar([str(gf) for gf in growth_factors], list(results.values()))
-        plt.title('不同Growth Factor的性能比较')
-        plt.xlabel('Growth Factor')
-        plt.ylabel('插入5000个元素的总时间 (秒)')
-        plt.grid(True)
-        plt.savefig('growth_factor_performance.png')
 
 if __name__ == '__main__':
     unittest.main()
