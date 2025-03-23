@@ -298,7 +298,9 @@ class TestDynamicArray(unittest.TestCase):
 class MonoidLawsTest(unittest.TestCase):
     """测试Monoid定律。"""
 
-    @given(st.lists(st.integers()), st.lists(st.integers()), st.lists(st.integers()))
+    @given(st.lists(st.integers()),
+           st.lists(st.integers()),
+           st.lists(st.integers()))
     def test_monoid_laws(self, list_x, list_y, list_z):
         """使用Hypothesis测试Monoid定律。"""
         x = DynamicArray.from_list(list_x)
@@ -314,6 +316,7 @@ class MonoidLawsTest(unittest.TestCase):
 
         # 结合律: concat(concat(x, y), z) == concat(x, concat(y, z))
         self.assertEqual(x.concat(y).concat(z), x.concat(y.concat(z)))
+
 
 if __name__ == '__main__':
     unittest.main()

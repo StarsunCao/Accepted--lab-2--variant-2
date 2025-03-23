@@ -71,7 +71,8 @@ class DynamicArray:
             return self._resize().cons(element)
 
         new_data = (element,) + self._data
-        return DynamicArray(new_data, self._length + 1, self._capacity, self._growth_factor)
+        return DynamicArray(new_data, self._length + 1,
+                            self._capacity, self._growth_factor)
 
     def _resize(self) -> 'DynamicArray':
         """扩容数组。
@@ -86,7 +87,8 @@ class DynamicArray:
             new_capacity = self._capacity + 1
 
         new_data = self._data + (None,) * (new_capacity - self._capacity)
-        return DynamicArray(new_data, self._length, new_capacity, self._growth_factor)
+        return DynamicArray(new_data, self._length,
+                            new_capacity, self._growth_factor)
 
     def remove(self, value: Any) -> 'DynamicArray':
         """移除数组中的指定值（第一次出现）。
@@ -152,7 +154,8 @@ class DynamicArray:
             return _reverse_rec(idx - 1, acc + (self._data[idx],))
 
         reversed_data = _reverse_rec(self._length - 1, ())
-        return DynamicArray(reversed_data + (None,) * (self._capacity - self._length),
+        return DynamicArray(reversed_data +
+                            (None,) * (self._capacity - self._length),
                             self._length, self._capacity, self._growth_factor)
 
     def to_list(self) -> list:
@@ -231,8 +234,10 @@ class DynamicArray:
             return _filter_rec(idx + 1, acc)
 
         filtered_data = _filter_rec(0, ())
-        return DynamicArray(filtered_data + (None,) * (self._capacity - len(filtered_data)),
-                            len(filtered_data), self._capacity, self._growth_factor)
+        return DynamicArray(filtered_data +
+                            (None,) * (self._capacity - len(filtered_data)),
+                            len(filtered_data),
+                            self._capacity, self._growth_factor)
 
     def map(self, func: Callable[[Any], Any]) -> 'DynamicArray':
         """映射数组元素。
@@ -251,7 +256,8 @@ class DynamicArray:
             return _map_rec(idx + 1, acc + (func(self._data[idx]),))
 
         mapped_data = _map_rec(0, ())
-        return DynamicArray(mapped_data + (None,) * (self._capacity - self._length),
+        return DynamicArray(mapped_data +
+                            (None,) * (self._capacity - self._length),
                             self._length, self._capacity, self._growth_factor)
 
     def reduce(self, func: Callable[[Any, Any], Any], initial: Any) -> Any:
@@ -302,8 +308,10 @@ class DynamicArray:
             return _intersection_rec(idx + 1, acc)
 
         intersect_data = _intersection_rec(0, ())
-        return DynamicArray(intersect_data + (None,) * (self._capacity - len(intersect_data)),
-                            len(intersect_data), self._capacity, self._growth_factor)
+        return DynamicArray(intersect_data +
+                            (None,) * (self._capacity - len(intersect_data)),
+                            len(intersect_data),
+                            self._capacity, self._growth_factor)
 
     def concat(self, other: 'DynamicArray') -> 'DynamicArray':
         """连接两个数组。
@@ -325,7 +333,8 @@ class DynamicArray:
         if len(new_data) < new_capacity:
             new_data = new_data + (None,) * (new_capacity - len(new_data))
 
-        return DynamicArray(new_data, total_length, new_capacity, self._growth_factor)
+        return DynamicArray(new_data, total_length, new_capacity,
+                            self._growth_factor)
 
     def __eq__(self, other: object) -> bool:
         """比较两个数组是否相等。
