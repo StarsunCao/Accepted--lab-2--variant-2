@@ -1,4 +1,5 @@
 import unittest
+from typing import List
 
 from hypothesis import given, strategies as st
 
@@ -8,26 +9,26 @@ from dynamic_array import DynamicArray
 class TestDynamicArray(unittest.TestCase):
     """测试DynamicArray类的功能。"""
 
-    def test_empty(self):
+    def test_empty(self) -> None:
         """测试创建空数组。"""
         arr = DynamicArray.empty()
         self.assertEqual(arr.length(), 0)
         self.assertEqual(str(arr), "[]")
 
-    def test_from_list(self):
+    def test_from_list(self) -> None:
         """测试从列表创建数组。"""
         arr = DynamicArray.from_list([1, 2, 3])
         self.assertEqual(arr.length(), 3)
         self.assertEqual(str(arr), "[1, 2, 3]")
 
-    def test_cons(self):
+    def test_cons(self) -> None:
         """测试cons操作。"""
         arr = DynamicArray.empty()
         arr = arr.cons(3).cons(2).cons(1)
         self.assertEqual(arr.length(), 3)
         self.assertEqual(str(arr), "[1, 2, 3]")
 
-    def test_remove(self):
+    def test_remove(self) -> None:
         """测试remove操作。"""
         arr = DynamicArray.from_list([1, 2, 3, 2])
         arr = arr.remove(2)
@@ -37,7 +38,7 @@ class TestDynamicArray(unittest.TestCase):
         arr = arr.remove(4)
         self.assertEqual(str(arr), "[1, 3, 2]")
 
-    def test_length(self):
+    def test_length(self) -> None:
         """测试length操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         self.assertEqual(arr.length(), 3)
@@ -45,7 +46,7 @@ class TestDynamicArray(unittest.TestCase):
         arr = arr.cons(0)
         self.assertEqual(arr.length(), 4)
 
-    def test_member(self):
+    def test_member(self) -> None:
         """测试member操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         self.assertTrue(arr.member(1))
@@ -53,7 +54,7 @@ class TestDynamicArray(unittest.TestCase):
         self.assertTrue(arr.member(3))
         self.assertFalse(arr.member(4))
 
-    def test_reverse(self):
+    def test_reverse(self) -> None:
         """测试reverse操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         reversed_arr = arr.reverse()
@@ -62,12 +63,12 @@ class TestDynamicArray(unittest.TestCase):
         # 原数组不变
         self.assertEqual(str(arr), "[1, 2, 3]")
 
-    def test_to_list(self):
+    def test_to_list(self) -> None:
         """测试to_list操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         self.assertEqual(arr.to_list(), [1, 2, 3])
 
-    def test_get(self):
+    def test_get(self) -> None:
         """测试get操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         self.assertEqual(arr.get(0), 1)
@@ -85,7 +86,7 @@ class TestDynamicArray(unittest.TestCase):
         with self.assertRaises(IndexError):
             arr.get(-4)
 
-    def test_set(self):
+    def test_set(self) -> None:
         """测试set操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         new_arr = arr.set(1, 5)
@@ -106,7 +107,7 @@ class TestDynamicArray(unittest.TestCase):
         with self.assertRaises(IndexError):
             arr.set(-4, 7)
 
-    def test_filter(self):
+    def test_filter(self) -> None:
         """测试filter操作。"""
         arr = DynamicArray.from_list([1, 2, 3, 4, 5])
         filtered = arr.filter(lambda x: x % 2 == 0)
@@ -115,7 +116,7 @@ class TestDynamicArray(unittest.TestCase):
         # 原数组不变
         self.assertEqual(str(arr), "[1, 2, 3, 4, 5]")
 
-    def test_map(self):
+    def test_map(self) -> None:
         """测试map操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         mapped = arr.map(lambda x: x * 2)
@@ -124,7 +125,7 @@ class TestDynamicArray(unittest.TestCase):
         # 原数组不变
         self.assertEqual(str(arr), "[1, 2, 3]")
 
-    def test_reduce(self):
+    def test_reduce(self) -> None:
         """测试reduce操作。"""
         arr = DynamicArray.from_list([1, 2, 3, 4])
         sum_result = arr.reduce(lambda acc, x: acc + x, 0)
@@ -133,7 +134,7 @@ class TestDynamicArray(unittest.TestCase):
         product_result = arr.reduce(lambda acc, x: acc * x, 1)
         self.assertEqual(product_result, 24)
 
-    def test_iterator(self):
+    def test_iterator(self) -> None:
         """测试iterator操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         iterator = arr.iterator()
@@ -143,7 +144,7 @@ class TestDynamicArray(unittest.TestCase):
         with self.assertRaises(StopIteration):
             next(iterator)
 
-    def test_intersection(self):
+    def test_intersection(self) -> None:
         """测试intersection操作。"""
         arr1 = DynamicArray.from_list([1, 2, 3, 4])
         arr2 = DynamicArray.from_list([3, 4, 5, 6])
@@ -155,7 +156,7 @@ class TestDynamicArray(unittest.TestCase):
         self.assertEqual(str(arr1), "[1, 2, 3, 4]")
         self.assertEqual(str(arr2), "[3, 4, 5, 6]")
 
-    def test_concat(self):
+    def test_concat(self) -> None:
         """测试concat操作。"""
         arr1 = DynamicArray.from_list([1, 2])
         arr2 = DynamicArray.from_list([3, 4])
@@ -167,7 +168,7 @@ class TestDynamicArray(unittest.TestCase):
         self.assertEqual(str(arr1), "[1, 2]")
         self.assertEqual(str(arr2), "[3, 4]")
 
-    def test_eq(self):
+    def test_eq(self) -> None:
         """测试__eq__操作。"""
         arr1 = DynamicArray.from_list([1, 2, 3])
         arr2 = DynamicArray.from_list([1, 2, 3])
@@ -177,12 +178,12 @@ class TestDynamicArray(unittest.TestCase):
         self.assertNotEqual(arr1, arr3)
         self.assertNotEqual(arr1, "not an array")
 
-    def test_str(self):
+    def test_str(self) -> None:
         """测试__str__操作。"""
         arr = DynamicArray.from_list([1, None, 3])
         self.assertEqual(str(arr), "[1, None, 3]")
 
-    def test_iter(self):
+    def test_iter(self) -> None:
         """测试__iter__操作。"""
         arr = DynamicArray.from_list([1, 2, 3])
         items = []
@@ -191,7 +192,7 @@ class TestDynamicArray(unittest.TestCase):
 
         self.assertEqual(items, [1, 2, 3])
 
-    def test_none_values(self):
+    def test_none_values(self) -> None:
         """测试None值处理。"""
         arr = DynamicArray.from_list([None, 1, None, 3])
         self.assertEqual(arr.length(), 4)
@@ -204,7 +205,7 @@ class TestDynamicArray(unittest.TestCase):
         arr_without_none = arr.remove(None)
         self.assertEqual(str(arr_without_none), "[1, None, 3]")
 
-    def test_empty_operations(self):
+    def test_empty_operations(self) -> None:
         """测试空数组的操作。"""
         empty_arr = DynamicArray.empty()
 
@@ -228,7 +229,7 @@ class TestDynamicArray(unittest.TestCase):
         self.assertEqual(empty_arr.concat(arr).to_list(), [1, 2])
         self.assertEqual(arr.concat(empty_arr).to_list(), [1, 2])
 
-    def test_growth_factor_one(self):
+    def test_growth_factor_one(self) -> None:
         """测试growth_factor=1时的扩容行为。"""
         arr = DynamicArray.empty(growth_factor=1.0)
 
@@ -239,7 +240,7 @@ class TestDynamicArray(unittest.TestCase):
         self.assertEqual(arr.length(), 5)
         self.assertEqual(arr.to_list(), [4, 3, 2, 1, 0])
 
-    def test_api(self):
+    def test_api(self) -> None:
         """用户提供的API测试。"""
         # 创建空数组
         empty_array = DynamicArray.empty()
@@ -300,7 +301,8 @@ class MonoidLawsTest(unittest.TestCase):
     @given(st.lists(st.integers()),
            st.lists(st.integers()),
            st.lists(st.integers()))
-    def test_monoid_laws(self, list_x, list_y, list_z):
+    def test_monoid_laws(self, list_x: List[int],
+                         list_y: List[int], list_z: List[int]) -> None:
         """使用Hypothesis测试Monoid定律。"""
         x = DynamicArray.from_list(list_x)
         y = DynamicArray.from_list(list_y)
@@ -315,7 +317,6 @@ class MonoidLawsTest(unittest.TestCase):
 
         # 结合律: concat(concat(x, y), z) == concat(x, concat(y, z))
         self.assertEqual(x.concat(y).concat(z), x.concat(y.concat(z)))
-
 
 if __name__ == '__main__':
     unittest.main()
