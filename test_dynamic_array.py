@@ -1,7 +1,6 @@
 import unittest
 from typing import Any, List, Callable
 
-import numpy as np
 from hypothesis import given, strategies as st
 
 from dynamic_array import DynamicArray
