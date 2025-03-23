@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generator, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Generator, Tuple, TypeVar
 
 T = TypeVar('T')
 U = TypeVar('U')
