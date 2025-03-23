@@ -318,5 +318,6 @@ class MonoidLawsTest(unittest.TestCase):
         # 结合律: concat(concat(x, y), z) == concat(x, concat(y, z))
         self.assertEqual(x.concat(y).concat(z), x.concat(y.concat(z)))
 
+
 if __name__ == '__main__':
     unittest.main()
