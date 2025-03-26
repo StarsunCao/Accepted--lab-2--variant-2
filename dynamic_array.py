@@ -5,24 +5,23 @@ U = TypeVar('U')
 
 
 class DynamicArray:
-    """不可变动态数组实现，支持函数式编程风格操作。
+    """Immutable dynamic array implementation supporting
+    functional programming style operations.
 
-    属性:
-        _data: 存储元素的不可变元组
-        _length: 数组中实际元素的数量
-        _capacity: 数组的容量
-        _growth_factor: 扩容因子，默认为2
+    Attributes:
+        _data: Tuple storing the elements
+        _length: Number of actual elements in the array
+        _capacity: Capacity of the array
+        _growth_factor: Growth factor for expansion, default 2.0
     """
-
     def __init__(self, data: Tuple[Any, ...], length: int, capacity: int,
                  growth_factor: float = 2.0):
-        """初始化动态数组。
-
+        """Initialize dynamic array.
         Args:
-            data: 存储元素的元组
-            length: 数组中实际元素的数量
-            capacity: 数组的容量
-            growth_factor: 扩容因子，默认为2.0
+            data: Tuple containing elements
+            length: Number of elements in the array
+            capacity: Array capacity
+            growth_factor: Growth factor for expansion, default 2.0
         """
         self._data = data
         self._length = length
@@ -31,26 +30,22 @@ class DynamicArray:
 
     @staticmethod
     def empty(growth_factor: float = 2.0) -> 'DynamicArray':
-        """创建一个空的动态数组。
-
+        """Create an empty dynamic array.
         Args:
-            growth_factor: 扩容因子，默认为2.0
-
+            growth_factor: Growth factor for expansion, default 2.0
         Returns:
-            一个新的空动态数组
+            New empty dynamic array
         """
         return DynamicArray((), 0, 0, growth_factor)
 
     @staticmethod
     def from_list(py_list: list, growth_factor: float = 2.0) -> 'DynamicArray':
-        """从Python列表创建动态数组。
-
+        """Create dynamic array from Python list.
         Args:
-            py_list: Python列表
-            growth_factor: 扩容因子，默认为2.0
-
+            py_list: Python list
+            growth_factor: Growth factor for expansion, default 2.0
         Returns:
-            包含列表元素的动态数组
+            Dynamic array containing list elements
         """
         length = len(py_list)
         capacity = length
@@ -58,181 +53,144 @@ class DynamicArray:
         return DynamicArray(data, length, capacity, growth_factor)
 
     def cons(self, element: Any) -> 'DynamicArray':
-        """在数组前端添加一个元素。
-
+        """Add element to the front of the array.
         Args:
-            element: 要添加的元素
-
+            element: Element to add
         Returns:
-            包含新元素的新数组
+            New array with added element
         """
         if self._length >= self._capacity:
-            # 需要扩容
+            # Need to resize
             return self._resize().cons(element)
-
         new_data = (element,) + self._data
         return DynamicArray(new_data, self._length + 1,
                             self._capacity, self._growth_factor)
 
     def _resize(self) -> 'DynamicArray':
-        """扩容数组。
-
+        """Expand array capacity.
         Returns:
-            扩容后的新数组
+            Resized new array
         """
-        # 修复当growth_factor为1时的问题，确保至少增加1个容量
+        # Fix for growth_factor=1 case, ensure at least 1 capacity increase
         new_capacity = max(1, int(self._capacity * self._growth_factor))
-        # 如果新容量等于当前容量，则至少增加1
+        # If new capacity equals current, increment by 1
         if new_capacity <= self._capacity:
             new_capacity = self._capacity + 1
-
         new_data = self._data + (None,) * (new_capacity - self._capacity)
         return DynamicArray(new_data, self._length,
                             new_capacity, self._growth_factor)
 
     def remove(self, value: Any) -> 'DynamicArray':
-        """移除数组中的指定值（第一次出现）。
-
+        """Remove first occurrence of value.
         Args:
-            value: 要移除的值
-
+            value: Value to remove
         Returns:
-            移除值后的新数组
+            New array with value removed
         """
-
         def _remove_rec(idx: int, acc: Tuple) -> Tuple:
             if idx >= self._length:
                 return acc
-
             current = self._data[idx]
-            if current == value and len(acc) == idx:  # 只移除第一次出现
+            if current == value and len(acc) == idx:  # Remove only first occurrence
                 return acc + self._data[idx + 1:self._length]
-
             return _remove_rec(idx + 1, acc + (current,))
-
         result = _remove_rec(0, ())
         return DynamicArray(result + (None,) * (self._capacity - len(result)),
                             len(result), self._capacity, self._growth_factor)
 
     def length(self) -> int:
-        """返回数组的长度。
-
+        """Get array length.
         Returns:
-            数组中元素的数量
+            Number of elements in array
         """
         return self._length
 
     def member(self, value: Any) -> bool:
-        """检查值是否在数组中。
-
+        """Check if value exists in array.
         Args:
-            value: 要检查的值
-
+            value: Value to check
         Returns:
-            如果值在数组中则为True，否则为False
+            True if value exists, else False
         """
-
         def _member_rec(idx: int) -> bool:
             if idx >= self._length:
                 return False
             if self._data[idx] == value:
                 return True
             return _member_rec(idx + 1)
-
         return _member_rec(0)
 
     def reverse(self) -> 'DynamicArray':
-        """返回反转后的数组。
-
+        """Create reversed array.
         Returns:
-            反转后的新数组
+            New reversed array
         """
-
         def _reverse_rec(idx: int, acc: Tuple) -> Tuple:
             if idx < 0:
                 return acc
             return _reverse_rec(idx - 1, acc + (self._data[idx],))
-
         reversed_data = _reverse_rec(self._length - 1, ())
         return DynamicArray(reversed_data +
                             (None,) * (self._capacity - self._length),
                             self._length, self._capacity, self._growth_factor)
 
     def to_list(self) -> list:
-        """将动态数组转换为Python列表。
-
+        """Convert to Python list.
         Returns:
-            包含数组元素的Python列表
+            Python list containing array elements
         """
         return list(self._data[:self._length])
 
     def get(self, index: int) -> Any:
-        """获取指定索引的元素。
-
+        """Get element at specified index.
         Args:
-            index: 元素的索引，支持负索引
-
+            index: Index (supports negative indexing)
         Returns:
-            索引位置的元素
-
+            Element at index
         Raises:
-            IndexError: 如果索引超出范围
+            IndexError: If index out of bounds
         """
         adjusted_index = index if index >= 0 else self._length + index
-
         if adjusted_index < 0 or adjusted_index >= self._length:
-            raise IndexError("索引超出范围")
-
+            raise IndexError("Index out of range")
         return self._data[adjusted_index]
 
     def set(self, index: int, value: Any) -> 'DynamicArray':
-        """设置指定索引的元素值。
-
+        """Set element at specified index.
         Args:
-            index: 元素的索引，支持负索引
-            value: 新值
-
+            index: Index (supports negative indexing)
+            value: New value
         Returns:
-            更新后的新数组
-
+            New updated array
         Raises:
-            IndexError: 如果索引超出范围
+            IndexError: If index out of bounds
         """
         adjusted_index = index if index >= 0 else self._length + index
-
         if adjusted_index < 0 or adjusted_index >= self._length:
-            raise IndexError("索引超出范围")
-
+            raise IndexError("Index out of range")
         def _set_rec(idx: int, acc: Tuple) -> Tuple:
             if idx >= self._length:
                 return acc
-
             current = value if idx == adjusted_index else self._data[idx]
             return _set_rec(idx + 1, acc + (current,))
-
         new_data = _set_rec(0, ())
         return DynamicArray(new_data + self._data[self._length:],
                             self._length, self._capacity, self._growth_factor)
 
     def filter(self, predicate: Callable[[Any], bool]) -> 'DynamicArray':
-        """过滤数组元素。
-
+        """Filter array elements.
         Args:
-            predicate: 判断函数，返回True的元素将被保留
-
+            predicate: Function returning True for elements to keep
         Returns:
-            过滤后的新数组
+            New filtered array
         """
-
         def _filter_rec(idx: int, acc: Tuple) -> Tuple:
             if idx >= self._length:
                 return acc
-
             current = self._data[idx]
             if predicate(current):
                 return _filter_rec(idx + 1, acc + (current,))
             return _filter_rec(idx + 1, acc)
-
         filtered_data = _filter_rec(0, ())
         return DynamicArray(filtered_data +
                             (None,) * (self._capacity - len(filtered_data)),
@@ -240,73 +198,57 @@ class DynamicArray:
                             self._capacity, self._growth_factor)
 
     def map(self, func: Callable[[Any], Any]) -> 'DynamicArray':
-        """映射数组元素。
-
+        """Map function over array elements.
         Args:
-            func: 映射函数，应用于每个元素
-
+            func: Function to apply to each element
         Returns:
-            映射后的新数组
+            New mapped array
         """
-
         def _map_rec(idx: int, acc: Tuple) -> Tuple:
             if idx >= self._length:
                 return acc
-
             return _map_rec(idx + 1, acc + (func(self._data[idx]),))
-
         mapped_data = _map_rec(0, ())
         return DynamicArray(mapped_data +
                             (None,) * (self._capacity - self._length),
                             self._length, self._capacity, self._growth_factor)
 
     def reduce(self, func: Callable[[Any, Any], Any], initial: Any) -> Any:
-        """归约数组元素。
-
+        """Reduce array elements.
         Args:
-            func: 归约函数，接受累积值和当前元素
-            initial: 初始累积值
-
+            func: Reduction function taking accumulator and current element
+            initial: Initial accumulator value
         Returns:
-            归约结果
+            Reduction result
         """
-
         def _reduce_rec(idx: int, acc: Any) -> Any:
             if idx >= self._length:
                 return acc
-
             return _reduce_rec(idx + 1, func(acc, self._data[idx]))
-
         return _reduce_rec(0, initial)
 
     def iterator(self) -> Generator[Any, None, None]:
-        """返回数组的迭代器。
-
+        """Get array iterator.
         Returns:
-            生成数组元素的生成器
+            Generator yielding array elements
         """
         for i in range(self._length):
             yield self._data[i]
 
     def intersection(self, other: 'DynamicArray') -> 'DynamicArray':
-        """返回与另一个数组的交集。
-
+        """Get intersection with another array.
         Args:
-            other: 另一个动态数组
-
+            other: Another dynamic array
         Returns:
-            包含两个数组共有元素的新数组
+            New array containing common elements
         """
-
         def _intersection_rec(idx: int, acc: Tuple) -> Tuple:
             if idx >= self._length:
                 return acc
-
             current = self._data[idx]
             if other.member(current):
                 return _intersection_rec(idx + 1, acc + (current,))
             return _intersection_rec(idx + 1, acc)
-
         intersect_data = _intersection_rec(0, ())
         return DynamicArray(intersect_data +
                             (None,) * (self._capacity - len(intersect_data)),
@@ -314,66 +256,52 @@ class DynamicArray:
                             self._capacity, self._growth_factor)
 
     def concat(self, other: 'DynamicArray') -> 'DynamicArray':
-        """连接两个数组。
-
+        """Concatenate two arrays.
         Args:
-            other: 要连接的另一个数组
-
+            other: Array to concatenate
         Returns:
-            连接后的新数组
+            New concatenated array
         """
         total_length = self._length + other._length
         new_capacity = max(self._capacity, total_length)
-
-        # 如果容量不足，需要扩容
+        # Expand if needed
         if new_capacity < total_length:
             new_capacity = max(1, int(new_capacity * self._growth_factor))
-
         new_data = self._data[:self._length] + other._data[:other._length]
         if len(new_data) < new_capacity:
             new_data = new_data + (None,) * (new_capacity - len(new_data))
-
         return DynamicArray(new_data, total_length, new_capacity,
                             self._growth_factor)
 
     def __eq__(self, other: object) -> bool:
-        """比较两个数组是否相等。
-
+        """Check array equality.
         Args:
-            other: 要比较的对象
-
+            other: Object to compare
         Returns:
-            如果两个数组内容相等则为True，否则为False
+            True if arrays have same content, else False
         """
         if not isinstance(other, DynamicArray):
             return False
-
         if self._length != other._length:
             return False
-
         def _eq_rec(idx: int) -> bool:
             if idx >= self._length:
                 return True
-
             if self._data[idx] != other._data[idx]:
                 return False
-
             return _eq_rec(idx + 1)
-
         return _eq_rec(0)
 
     def __str__(self) -> str:
-        """返回数组的字符串表示。
-
+        """String representation.
         Returns:
-            数组的字符串表示，格式如 [None, 1, 3]
+            String in format [None, 1, 3]
         """
         return str(list(self._data[:self._length]))
 
     def __iter__(self) -> Generator[Any, None, None]:
-        """实现迭代协议。
-
+        """Implement iteration protocol.
         Returns:
-            数组的迭代器
+            Array iterator
         """
         return self.iterator()
