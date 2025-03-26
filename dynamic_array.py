@@ -91,7 +91,7 @@ class DynamicArray:
             if idx >= self._length:
                 return acc
             current = self._data[idx]
-            if current == value and len(acc) == idx:  # Remove only first occurrence
+            if current == value and len(acc) == idx:
                 return acc + self._data[idx + 1:self._length]
             return _remove_rec(idx + 1, acc + (current,))
         result = _remove_rec(0, ())
@@ -168,6 +168,7 @@ class DynamicArray:
         adjusted_index = index if index >= 0 else self._length + index
         if adjusted_index < 0 or adjusted_index >= self._length:
             raise IndexError("Index out of range")
+
         def _set_rec(idx: int, acc: Tuple) -> Tuple:
             if idx >= self._length:
                 return acc
@@ -284,6 +285,7 @@ class DynamicArray:
             return False
         if self._length != other._length:
             return False
+
         def _eq_rec(idx: int) -> bool:
             if idx >= self._length:
                 return True

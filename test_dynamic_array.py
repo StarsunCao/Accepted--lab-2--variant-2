@@ -255,6 +255,7 @@ class TestDynamicArray(unittest.TestCase):
         concatenated_array = array1.concat(array2)
         self.assertEqual(concatenated_array.to_list(), [1, 2, 3, 2, 3, 4])
 
+
 class MonoidLawsTest(unittest.TestCase):
     """Test Monoid laws."""
     @given(st.lists(st.integers()),
@@ -273,6 +274,7 @@ class MonoidLawsTest(unittest.TestCase):
         self.assertEqual(x.concat(empty), x)
         # Associativity: concat(concat(x, y), z) == concat(x, concat(y, z))
         self.assertEqual(x.concat(y).concat(z), x.concat(y.concat(z)))
+
 
 if __name__ == '__main__':
     unittest.main()
