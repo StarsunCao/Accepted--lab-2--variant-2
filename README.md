@@ -19,9 +19,9 @@ while efficiently reusing existing data structures.
   for the DynamicArray class.
 - `README.md`
   Project documentation.
-
-
+  
 ---
+
 ## Mutable vs Immutable Dynamic Array Implementation
 
 ### Lab 1 (Mutable)
@@ -29,7 +29,7 @@ while efficiently reusing existing data structures.
 - **Modifies existing data** in-place
 
 - Methods like `add()`, `remove()`, and `map()` return `None`
-and change the original object
+  and change the original object
 
 - Uses **imperative programming** with loops and direct array manipulation
 
