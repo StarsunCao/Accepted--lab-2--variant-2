@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generator, Tuple, TypeVar
+from typing import Any, Callable, Generator, List, Tuple, TypeVar
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -39,7 +39,7 @@ class DynamicArray:
         return DynamicArray((), 0, 0, growth_factor)
 
     @staticmethod
-    def from_list(py_list: list, growth_factor: float = 2.0) -> 'DynamicArray':
+    def from_list(py_list: List[T], growth_factor: float = 2.0) -> 'DynamicArray':
         """Create dynamic array from Python list.
         Args:
             py_list: Python list
@@ -87,7 +87,7 @@ class DynamicArray:
         Returns:
             New array with value removed
         """
-        def _remove_rec(idx: int, acc: Tuple) -> Tuple:
+        def _remove_rec(idx: int, acc: Tuple[Any, ...]) -> Tuple[Any, ...]:
             if idx >= self._length:
                 return acc
             current = self._data[idx]
@@ -125,7 +125,7 @@ class DynamicArray:
         Returns:
             New reversed array
         """
-        def _reverse_rec(idx: int, acc: Tuple) -> Tuple:
+        def _reverse_rec(idx: int, acc: Tuple[Any, ...]) -> Tuple[Any, ...]:
             if idx < 0:
                 return acc
             return _reverse_rec(idx - 1, acc + (self._data[idx],))
@@ -134,7 +134,7 @@ class DynamicArray:
                             (None,) * (self._capacity - self._length),
                             self._length, self._capacity, self._growth_factor)
 
-    def to_list(self) -> list:
+    def to_list(self) -> List[Any]:
         """Convert to Python list.
         Returns:
             Python list containing array elements
@@ -169,7 +169,7 @@ class DynamicArray:
         if adjusted_index < 0 or adjusted_index >= self._length:
             raise IndexError("Index out of range")
 
-        def _set_rec(idx: int, acc: Tuple) -> Tuple:
+        def _set_rec(idx: int, acc: Tuple[Any, ...]) -> Tuple[Any, ...]:
             if idx >= self._length:
                 return acc
             current = value if idx == adjusted_index else self._data[idx]
@@ -185,7 +185,7 @@ class DynamicArray:
         Returns:
             New filtered array
         """
-        def _filter_rec(idx: int, acc: Tuple) -> Tuple:
+        def _filter_rec(idx: int, acc: Tuple[Any, ...]) -> Tuple[Any, ...]:
             if idx >= self._length:
                 return acc
             current = self._data[idx]
@@ -205,7 +205,7 @@ class DynamicArray:
         Returns:
             New mapped array
         """
-        def _map_rec(idx: int, acc: Tuple) -> Tuple:
+        def _map_rec(idx: int, acc: Tuple[Any, ...]) -> Tuple[Any, ...]:
             if idx >= self._length:
                 return acc
             return _map_rec(idx + 1, acc + (func(self._data[idx]),))
@@ -243,7 +243,7 @@ class DynamicArray:
         Returns:
             New array containing common elements
         """
-        def _intersection_rec(idx: int, acc: Tuple) -> Tuple:
+        def _intersection_rec(idx: int, acc: Tuple[Any, ...]) -> Tuple[Any, ...]:
             if idx >= self._length:
                 return acc
             current = self._data[idx]
