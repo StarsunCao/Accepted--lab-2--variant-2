@@ -7,8 +7,8 @@
 * **Modifies existing data** in-place
 
 * Methods like `add()`, `remove()`,
-
-and `map()` return `None` and change the original object
+and `map()` return `None`
+and change the original object
 
 * Uses **imperative programming** with loops and direct array manipulation
 
