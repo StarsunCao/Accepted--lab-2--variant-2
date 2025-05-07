@@ -3,11 +3,15 @@
 ## Core Implementation Approaches
 
 ### Lab 1 (Mutable)
+
 * **Modifies existing data** in-place
-* Methods like `add()`, `remove()`, and `map()` return `None` and change the original object
+* Methods like `add()`, `remove()`,
+and `map()` return `None` and
+change the original object
 * Uses **imperative programming** with loops and direct array manipulation
 
 ### Lab 2 (Immutable)
+
 * **Creates new instances** for every operation
 * Methods like `cons()`, `remove()`, and `map()` return new `DynamicArray` objects
 * Uses **functional programming** with recursion and immutable data structures
