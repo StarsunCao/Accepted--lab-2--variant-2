@@ -39,7 +39,8 @@ class DynamicArray:
         return DynamicArray((), 0, 0, growth_factor)
 
     @staticmethod
-    def from_list(py_list: List[T], growth_factor: float = 2.0) -> 'DynamicArray':
+    def from_list(py_list: List[T], growth_factor: float = 
+    2.0) -> 'DynamicArray':
         """Create dynamic array from Python list.
         Args:
             py_list: Python list
@@ -243,7 +244,8 @@ class DynamicArray:
         Returns:
             New array containing common elements
         """
-        def _intersection_rec(idx: int, acc: Tuple[Any, ...]) -> Tuple[Any, ...]:
+        def _intersection_rec(idx: int, acc: Tuple[Any, 
+        ...]) -> Tuple[Any, ...]:
             if idx >= self._length:
                 return acc
             current = self._data[idx]
