@@ -19,7 +19,7 @@ while efficiently reusing existing data structures.
   for the DynamicArray class.
 - `README.md`
   Project documentation.
-  
+
 ---
 
 ## Mutable vs Immutable Dynamic Array Implementation
@@ -56,7 +56,6 @@ while efficiently reusing existing data structures.
 | **Stack** | ✅ No limits | ❌ Recursion limits |
 
 ---
-
 
 ## Features
 
