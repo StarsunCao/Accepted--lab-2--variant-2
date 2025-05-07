@@ -135,7 +135,8 @@ while efficiently reusing existing data structures.
 ---
 
 ## Changelog
-
+- 07.05.2025 - 1  
+   - Compare lab 1 and lab 2 implementation.
 - 23.03.2025 - 0  
    - Initial implementation of immutable dynamic array
    - Added comprehensive test suite including unit tests and property-based tests
